@@ -9,6 +9,7 @@ import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventType;
 import org.keycloak.models.ClientModel;
+import org.keycloak.models.Constants;
 import org.keycloak.models.UserModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.protocol.oidc.utils.OIDCResponseMode;
@@ -101,6 +102,10 @@ public class MagicLinkActionTokenHandler extends AbstractActionTokenHandler<Magi
       if (token.getCodeChallengeMethod() != null) {
         authSession.setClientNote(
             OIDCLoginProtocol.CODE_CHALLENGE_METHOD_PARAM, token.getCodeChallengeMethod());
+      }
+
+      if(token.getKcAction() != null) {
+          authSession.setClientNote(Constants.KC_ACTION, token.getKcAction());
       }
     }
 

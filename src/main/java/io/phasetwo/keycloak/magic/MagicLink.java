@@ -165,6 +165,7 @@ public class MagicLink {
     String codeChallengeMethod =
         authSession.getClientNote(OIDCLoginProtocol.CODE_CHALLENGE_METHOD_PARAM);
     String responseMode = authSession.getClientNote(OIDCLoginProtocol.RESPONSE_MODE_PARAM);
+    String kcAction = authSession.getClientNote(Constants.KC_ACTION);
     log.debugf(
         "Attempting MagicLinkAuthenticator for %s, %s, %s", user.getEmail(), clientId, redirectUri);
     log.debugf("MagicLinkAuthenticator extra vars %s %s %s %b %s", scope, state, nonce, rememberMe, responseMode);
@@ -178,6 +179,7 @@ public class MagicLink {
         state,
         codeChallenge,
         codeChallengeMethod,
+        kcAction,
         rememberMe,
         isActionTokenPersistent,
         responseMode);
@@ -193,6 +195,7 @@ public class MagicLink {
       String state,
       String codeChallenge,
       String codeChallengeMethod,
+      String kcAction,
       Boolean rememberMe) {
     return createActionToken(
         user,
@@ -204,6 +207,7 @@ public class MagicLink {
         state,
         codeChallenge,
         codeChallengeMethod,
+        kcAction,
         rememberMe,
         true,
         null);
@@ -219,6 +223,7 @@ public class MagicLink {
       String state,
       String codeChallenge,
       String codeChallengeMethod,
+      String kcAction,
       Boolean rememberMe,
       Boolean isActionTokenPersistent,
       String responseMode) {
@@ -236,6 +241,7 @@ public class MagicLink {
             state,
             codeChallenge,
             codeChallengeMethod,
+            kcAction,
             rememberMe,
             isActionTokenPersistent,
             responseMode);
@@ -249,6 +255,7 @@ public class MagicLink {
             clientId,
             redirectUri,
             validity,
+            null,
             null,
             null,
             null,

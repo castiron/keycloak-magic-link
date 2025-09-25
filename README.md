@@ -70,6 +70,7 @@ Parameters:
 | `nonce` | N | | OIDC `nonce` variable. |
 | `state` | N | | OIDC `state` variable. |
 | `code_challenge` | N | | OIDC `code_challenge` variable (for PKCE). |
+| `kc_action` | N | | Application-initiated action to execute after login |
 | `remember_me` | N | false | If the user is treated as if they had checked "Remember Me" on login. Requires that it is enabled in the Realm. |
 | `reusable` | N | true | If the token can be reused multiple times during its validity |
 | `response_mode` | N | query | Determines how the authorization response is returned to the client: in the URL query string (query) or in the URL fragment (fragment). |

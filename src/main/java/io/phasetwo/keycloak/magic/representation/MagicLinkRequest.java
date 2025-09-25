@@ -49,6 +49,9 @@ public class MagicLinkRequest {
   @JsonProperty("code_challenge_method")
   private String codeChallengeMethod = null;
 
+  @JsonProperty("kc_action")
+  private String kcAction = null;
+
   @JsonProperty("remember_me")
   private Boolean rememberMe = false;
 

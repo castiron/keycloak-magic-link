@@ -80,6 +80,7 @@ public class MagicLinkResource extends AbstractAdminResource {
             rep.getState(),
             rep.getCodeChallenge(),
             rep.getCodeChallengeMethod(),
+            rep.getKcAction(),
             rep.getRememberMe(),
             rep.getActionTokenPersistent(),
             rep.getResponseMode());
