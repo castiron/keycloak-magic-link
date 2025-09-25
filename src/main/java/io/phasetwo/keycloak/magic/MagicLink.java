@@ -162,6 +162,7 @@ public class MagicLink {
     String codeChallenge = authSession.getClientNote(OIDCLoginProtocol.CODE_CHALLENGE_PARAM);
     String codeChallengeMethod =
         authSession.getClientNote(OIDCLoginProtocol.CODE_CHALLENGE_METHOD_PARAM);
+    String kcAction = authSession.getClientNote(Constants.KC_ACTION);
     log.debugf(
         "Attempting MagicLinkAuthenticator for %s, %s, %s", user.getEmail(), clientId, redirectUri);
     log.debugf("MagicLinkAuthenticator extra vars %s %s %s %b", scope, state, nonce, rememberMe);
@@ -175,6 +176,7 @@ public class MagicLink {
         state,
         codeChallenge,
         codeChallengeMethod,
+        kcAction,
         rememberMe,
         isActionTokenPersistent);
   }
@@ -189,6 +191,7 @@ public class MagicLink {
       String state,
       String codeChallenge,
       String codeChallengeMethod,
+      String kcAction,
       Boolean rememberMe) {
     return createActionToken(
         user,
@@ -200,6 +203,7 @@ public class MagicLink {
         state,
         codeChallenge,
         codeChallengeMethod,
+        kcAction,
         rememberMe,
         true);
   }
@@ -214,6 +218,7 @@ public class MagicLink {
       String state,
       String codeChallenge,
       String codeChallengeMethod,
+      String kcAction,
       Boolean rememberMe,
       Boolean isActionTokenPersistent) {
     // build the action token
@@ -230,6 +235,7 @@ public class MagicLink {
             state,
             codeChallenge,
             codeChallengeMethod,
+            kcAction,
             rememberMe,
             isActionTokenPersistent);
     return token;
@@ -238,7 +244,7 @@ public class MagicLink {
   public static MagicLinkActionToken createActionToken(
       UserModel user, String clientId, String redirectUri, OptionalInt validity) {
     return createActionToken(
-        user, clientId, redirectUri, validity, null, null, null, null, null, false, true);
+        user, clientId, redirectUri, validity, null, null, null, null, null, null, true);
   }
 
   public static String linkFromActionToken(

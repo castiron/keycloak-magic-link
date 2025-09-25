@@ -16,6 +16,7 @@ public class MagicLinkActionToken extends DefaultActionToken {
   private static final String JSON_FIELD_CODE_CHALLENGE = "cc";
   private static final String JSON_FIELD_CODE_CHALLENGE_METHOD = "ccm";
   private static final String JSON_FIELD_REUSABLE = "ru";
+  private static final String JSON_FIELD_KC_ACTION = "aia";
 
   @JsonProperty(value = JSON_FIELD_REDIRECT_URI)
   private String redirectUri;
@@ -40,6 +41,9 @@ public class MagicLinkActionToken extends DefaultActionToken {
 
   @JsonProperty(value = JSON_FIELD_CODE_CHALLENGE_METHOD)
   private String codeChallengeMethod;
+
+  @JsonProperty(value = JSON_FIELD_KC_ACTION)
+  private String kcAction;
 
   public MagicLinkActionToken(
       String userId, int absoluteExpirationInSecs, String clientId, String redirectUri) {
@@ -89,6 +93,7 @@ public class MagicLinkActionToken extends DefaultActionToken {
       String state,
       String codeChallenge,
       String codeChallengeMethod,
+      String kcAction,
       Boolean rememberMe,
       Boolean isActionTokenPersistent) {
     this(
@@ -103,6 +108,7 @@ public class MagicLinkActionToken extends DefaultActionToken {
         isActionTokenPersistent);
     this.codeChallenge = codeChallenge;
     this.codeChallengeMethod = codeChallengeMethod;
+    this.kcAction = kcAction;
     this.nonce = nonce;
   }
 
@@ -182,4 +188,8 @@ public class MagicLinkActionToken extends DefaultActionToken {
   public void setCodeChallengeMethod(String value) {
     this.codeChallengeMethod = value;
   }
+
+  public String getKcAction() { return this.kcAction; }
+
+  public void setKcAction(String value) { this.kcAction = value; }
 }
