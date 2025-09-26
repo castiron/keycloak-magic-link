@@ -10,19 +10,27 @@ import io.phasetwo.keycloak.magic.MagicLink;
 import io.phasetwo.keycloak.magic.auth.token.MagicLinkActionToken;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+
+import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalInt;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
 import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
+import org.keycloak.common.util.Time;
+import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.models.Constants;
+import org.keycloak.models.SingleUseObjectProvider;
 import org.keycloak.models.UserModel;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
 @JBossLog
 public class MagicLinkAuthenticator extends UsernamePasswordForm {
@@ -32,6 +40,8 @@ public class MagicLinkAuthenticator extends UsernamePasswordForm {
 
   static final String ACTION_TOKEN_PERSISTENT_CONFIG_PROPERTY = "ext-magic-allow-token-reuse";
   static final String ACTION_TOKEN_LIFE_SPAN = "ext-magic-token-life-span";
+
+  static final String MAGIC_LINK_EMAIL_KEY = "MAGIC_LINK_EMAIL_KEY";
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
@@ -108,23 +118,34 @@ public class MagicLinkAuthenticator extends UsernamePasswordForm {
 
     OptionalInt lifespan = getActionTokenLifeSpan(context, "");
 
-    MagicLinkActionToken token =
-        MagicLink.createActionToken(
-            user,
-            clientId,
-            lifespan,
-            rememberMe(context),
-            context.getAuthenticationSession(),
-            isActionTokenPersistent(context, true));
-    String link = MagicLink.linkFromActionToken(context.getSession(), context.getRealm(), token);
-    boolean sent = MagicLink.sendMagicLinkEmail(context.getSession(), user, link);
-    log.debugf("sent email to %s? %b. Link? %s", user.getEmail(), sent, link);
+    AuthenticationSessionModel authSession = context.getAuthenticationSession();
 
-    context
-        .getAuthenticationSession()
-        .setAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME, email);
+    // Do not allow resending e-mail by simple page refresh (i.e. in the same auth context)
+    if (!Objects.equals(authSession.getAuthNote(MAGIC_LINK_EMAIL_KEY), email)) {
+      authSession.setAuthNote(MAGIC_LINK_EMAIL_KEY, email);
+      MagicLinkActionToken token =
+              MagicLink.createActionToken(
+                      user,
+                      clientId,
+                      lifespan,
+                      rememberMe(context),
+                      authSession,
+                      isActionTokenPersistent(context, true));
+      String link = MagicLink.linkFromActionToken(context.getSession(), context.getRealm(), token);
+      boolean sent = MagicLink.sendMagicLinkEmail(context.getSession(), user, link);
+      log.debugf("sent email to %s? %b. Link? %s", user.getEmail(), sent, link);
+    }
+
+    authSession.setAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME, email);
+
     context.challenge(context.form().createForm("view-email.ftl"));
   }
+
+//  private void addCooldownEntry(AuthenticationFlowContext context) {
+//    SingleUseObjectProvider cache = context.getSession().singleUseObjects();
+//    long cooldownSeconds = getCooldownInSeconds(context);
+//    cache.put(getCacheKey(context), cooldownSeconds, Map.of("expire", Long.toString(Time.currentTime() + cooldownSeconds)));
+//  }
 
   private boolean rememberMe(AuthenticationFlowContext context) {
     MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
